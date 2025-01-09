@@ -162,28 +162,34 @@ const PathwayGraph = ({ pathway }) => {
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     // Add circles to nodes
-    nodes
-      .append("circle")
-      .attr("r", 12)
-      .style("fill", (d) => (d.children ? "#3498db" : "#2ecc71"))
-      .style("stroke", "#fff")
-      .style("stroke-width", 3)
-      .style("filter", "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.2))");
+    // Add circles to nodes
+nodes
+.append("circle")
+.attr("r", 12) // Circle radius
+.style("fill", (d) => (d.children ? "#3498db" : "#2ecc71"))
+.style("stroke", "#fff")
+.style("stroke-width", 3)
+.style("filter", "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.2))");
 
-    // Add text to nodes with the full text always visible
-    nodes
-      .append("text")
-      .attr("dx", 15)
-      .attr("dy", 5)
-      .style("font-size", "14px")
-      .style("fill", "#333")
-      .style("font-weight", "bold")
-      .style("font-family", "Arial, sans-serif")
-      .style("pointer-events", "none") // Prevent text overlap on interaction
-      .text((d) => d.data.name);
+// Add text to nodes dynamically
+nodes
+.append("text")
+.style("font-size", "14px")
+.style("fill", "#333")
+.style("font-weight", "bold")
+.style("font-family", "Arial, sans-serif")
+.style("pointer-events", "none") // Prevent text from interfering with mouse events
+.attr("dy", 5) // Center vertically
+.attr("dx", function (d) {
+  const circleRadius = 12; // Match the circle's radius
+  const textWidth = this.getBBox().width; // Get width of the current text element
+  return circleRadius + 5; // Offset text by radius + padding
+})
+.style("text-anchor", "start") // Align text to the left edge
+.text((d) => d.data.name);
 
-    // Add title for the tooltip on hover (full text will show on hover)
-    nodes.append("title").text((d) => d.data.name);
+// Add title for hover tooltip
+nodes.append("title").text((d) => d.data.name);
 
     // Add zoom and pan functionality
     const zoomBehavior = d3.zoom().on("zoom", (event) => {
