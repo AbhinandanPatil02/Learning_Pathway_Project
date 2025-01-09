@@ -66,22 +66,3 @@ const App = () => {
 
 export default App;
 
-
-// import React, { useState } from 'react';
-// import InputForm from './components/InputForm';
-// import PathwayGraph from './components/PathwayGraph';
-// import './styles.css';
-
-// const App = () => {
-//     const [pathway, setPathway] = useState([]);
-
-//     return (
-//         <div className="app-container">
-//             <h1 className="app-header">Learning Pathway Generator</h1>
-//             <InputForm setPathway={setPathway} />
-//             {pathway.length > 0 && <PathwayGraph pathway={pathway} />}
-//         </div>
-//     );
-// };
-
-// export default App;
