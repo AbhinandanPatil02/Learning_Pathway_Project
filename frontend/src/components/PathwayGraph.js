@@ -111,6 +111,7 @@ import * as d3 from "d3";
 const PathwayGraph = ({ pathway }) => {
   const svgRef = useRef();
 
+  
   useEffect(() => {
     if (!pathway || !pathway.name || !pathway.children) {
       console.error("Invalid pathway data:", pathway);
