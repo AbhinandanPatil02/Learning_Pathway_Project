@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import PathwayGraph from "./components/PathwayGraph";  // Update the path here
 import "./components/GraphStyles.css";  // Update the path here
+import Navbar from "./components/Navbar";
   // Updated CSS filename
 
 const App = () => {
@@ -28,6 +29,8 @@ const App = () => {
     };
 
     return (
+        <div>
+            <Navbar/>
         <div style={{ padding: "20px" }}>
             <h1 style={{ textAlign: "center" }}>Learning Pathway Generator</h1>
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -60,6 +63,7 @@ const App = () => {
             </div>
             {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
             <PathwayGraph pathway={pathway} />
+        </div>
         </div>
     );
 };
