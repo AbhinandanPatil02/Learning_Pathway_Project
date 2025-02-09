@@ -1,108 +1,111 @@
-// import React, { useEffect, useRef } from 'react';
-// import * as d3 from 'd3';
+// import React, { useEffect, useRef } from "react";
+// import * as d3 from "d3";
+
 
 // const PathwayGraph = ({ pathway }) => {
-//     const svgRef = useRef();
-//     const containerRef = useRef();
+//   const svgRef = useRef();
 
-//     useEffect(() => {
-//         if (!Array.isArray(pathway) || pathway.length === 0) {
-//             console.error('Invalid pathway data, expected a non-empty array.');
-//             return;
-//         }
+//   useEffect(() => {
+//     if (!pathway || !pathway.name || !pathway.children) {
+//       console.error("Invalid pathway data:", pathway);
+//       return;
+//     }
 
-//         const container = d3.select(containerRef.current);
-//         const svg = d3.select(svgRef.current);
-//         svg.selectAll('*').remove(); // Clear the SVG content
+//     const svg = d3.select(svgRef.current);
+//     svg.selectAll("*").remove(); // Clear previous content
 
-//         const width = 1500;
-//         const height = 1000;
+//     const width = svgRef.current.clientWidth;
+//     const height = width * 0.75;
 
-//         // Create zoom behavior
-//         const zoom = d3.zoom()
-//             .scaleExtent([0.5, 5]) // Allow zooming between 50% and 500%
-//             .on('zoom', (event) => {
-//                 svg.select('g').attr('transform', event.transform);
-//             });
+//     // Add SVG and set its viewBox to scale properly
+//     const g = svg
+//       .attr("viewBox", `0 0 ${width} ${height}`)
+//       .attr("preserveAspectRatio", "xMidYMid meet")
+//       .append("g")
+//       .attr("transform", "translate(50, 0)");
 
-//         container.call(zoom);
+//     // Create a hierarchy
+//     const root = d3.hierarchy(pathway);
+//     const treeLayout = d3.tree().size([height - 100, width - 200]);
+//     treeLayout(root);
 
-//         // Add a group element to apply zoom transformations
-//         const g = svg.append('g');
+//     console.log(root); // Debug the tree structure
 
-//         // Prepare tree data
-//         const root = d3.hierarchy(
-//             {
-//                 name: 'Learning Pathway',
-//                 children: pathway.map((stage) => ({
-//                     name: stage.title,
-//                     children: stage.subtopics.map((subtopic) => ({
-//                         name: subtopic,
-//                     })),
-//                 })),
-//             }
-//         );
+//     // Define curved links
+//     const linkGenerator = d3
+//       .linkHorizontal()
+//       .x((d) => d.y)
+//       .y((d) => d.x);
 
-//         const treeLayout = d3.tree().size([width - 200, height - 200]);
-//         treeLayout(root);
+//     // Add links
+//     g.selectAll(".link")
+//       .data(root.links())
+//       .enter()
+//       .append("path")
+//       .attr("class", "link")
+//       .attr("d", linkGenerator)
+//       .style("fill", "none")
+//       .style("stroke", "#888")
+//       .style("stroke-width", 2);
 
-//         // Add links (lines between nodes)
-//         g.selectAll('line')
-//             .data(root.links())
-//             .enter()
-//             .append('line')
-//             .attr('x1', d => d.source.x)
-//             .attr('y1', d => d.source.y)
-//             .attr('x2', d => d.target.x)
-//             .attr('y2', d => d.target.y)
-//             .style('stroke', '#aaa')
-//             .style('stroke-width', 2);
+//     // Add nodes
+//     const nodes = g
+//       .selectAll(".node")
+//       .data(root.descendants())
+//       .enter()
+//       .append("g")
+//       .attr("class", "node")
+//       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
-//         // Add nodes (circles representing each step)
-//         g.selectAll('circle')
-//             .data(root.descendants())
-//             .enter()
-//             .append('circle')
-//             .attr('cx', d => d.x)
-//             .attr('cy', d => d.y)
-//             .attr('r', 20)
-//             .style('fill', '#3498db');
+//     // Add circles to nodes
+//     nodes
+//       .append("circle")
+//       .attr("r", 12) // Circle radius
+//       .style("fill", (d) => (d.children ? "#3498db" : "#2ecc71"))
+//       .style("stroke", "#fff")
+//       .style("stroke-width", 3)
+//       .style("filter", "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.2))");
 
-//         // Add text labels to nodes
-//         g.selectAll('text')
-//             .data(root.descendants())
-//             .enter()
-//             .append('text')
-//             .attr('x', d => d.x + 25) // Position text slightly to the right of the nodes
-//             .attr('y', d => d.y + 5) // Center text vertically
-//             .text(d => d.data.name)
-//             .style('fill', 'black')
-//             .style('font-size', '12px');
+//     // Add text to nodes dynamically
+//     nodes
+//       .append("text")
+//       .style("font-size", "14px")
+//       .style("fill", "#333")
+//       .style("font-weight", "bold")
+//       .style("font-family", "Arial, sans-serif")
+//       .style("pointer-events", "none") // Prevent text from interfering with mouse events
+//       .attr("dy", 5) // Center vertically
+//       .attr("dx", function (d) {
+//         const circleRadius = 12; // Match the circle's radius
+//         const textWidth = this.getBBox().width; // Get width of the current text element
+//         return circleRadius + 5; // Offset text by radius + padding
+//       })
+//       .style("text-anchor", "start") // Align text to the left edge
+//       .text((d) => d.data.name);
 
-//         // Cleanup on unmount
-//         return () => {
-//             svg.selectAll('*').remove();
-//         };
-//     }, [pathway]);
+//     // Add title for hover tooltip
+//     nodes.append("title").text((d) => d.data.name);
 
-//     return (
-//         <div
-//             ref={containerRef}
-//             style={{
-//                 width: '100%',
-//                 height: '500px',
-//                 overflow: 'auto',
-//                 border: '1px solid #ccc',
-//                 borderRadius: '10px',
-//                 backgroundColor: '#f4f4f4',
-//             }}
-//         >
-//             <svg ref={svgRef} width="1500" height="1000"></svg>
-//         </div>
-//     );
+//     // Add zoom and pan functionality
+//     const zoomBehavior = d3.zoom().on("zoom", (event) => {
+//       g.attr("transform", event.transform);
+//     });
+
+//     svg.call(zoomBehavior);
+
+//     // Set SVG width and height as responsive values
+//     svg.attr("width", "100%").attr("height", height);
+//   }, [pathway]);
+
+//   return (
+//     <div style={{ width: "100%", height: "500px", overflow: "auto" }}>
+//       <svg ref={svgRef}></svg>
+//     </div>
+//   );
 // };
 
 // export default PathwayGraph;
+
 
 
 import React, { useEffect, useRef } from "react";
@@ -111,8 +114,9 @@ import * as d3 from "d3";
 const PathwayGraph = ({ pathway }) => {
   const svgRef = useRef();
 
-  
   useEffect(() => {
+    console.log("Pathway data in PathwayGraph:", pathway); // Debugging statement
+
     if (!pathway || !pathway.name || !pathway.children) {
       console.error("Invalid pathway data:", pathway);
       return;
@@ -135,6 +139,8 @@ const PathwayGraph = ({ pathway }) => {
     const root = d3.hierarchy(pathway);
     const treeLayout = d3.tree().size([height - 100, width - 200]);
     treeLayout(root);
+
+    console.log(root); // Debug the tree structure
 
     // Define curved links
     const linkGenerator = d3
@@ -163,34 +169,33 @@ const PathwayGraph = ({ pathway }) => {
       .attr("transform", (d) => `translate(${d.y},${d.x})`);
 
     // Add circles to nodes
-    // Add circles to nodes
-nodes
-.append("circle")
-.attr("r", 12) // Circle radius
-.style("fill", (d) => (d.children ? "#3498db" : "#2ecc71"))
-.style("stroke", "#fff")
-.style("stroke-width", 3)
-.style("filter", "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.2))");
+    nodes
+      .append("circle")
+      .attr("r", 12) // Circle radius
+      .style("fill", (d) => (d.children ? "#3498db" : "#2ecc71"))
+      .style("stroke", "#fff")
+      .style("stroke-width", 3)
+      .style("filter", "drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.2))");
 
-// Add text to nodes dynamically
-nodes
-.append("text")
-.style("font-size", "14px")
-.style("fill", "#333")
-.style("font-weight", "bold")
-.style("font-family", "Arial, sans-serif")
-.style("pointer-events", "none") // Prevent text from interfering with mouse events
-.attr("dy", 5) // Center vertically
-.attr("dx", function (d) {
-  const circleRadius = 12; // Match the circle's radius
-  const textWidth = this.getBBox().width; // Get width of the current text element
-  return circleRadius + 5; // Offset text by radius + padding
-})
-.style("text-anchor", "start") // Align text to the left edge
-.text((d) => d.data.name);
+    // Add text to nodes dynamically
+    nodes
+      .append("text")
+      .style("font-size", "14px")
+      .style("fill", "#333")
+      .style("font-weight", "bold")
+      .style("font-family", "Arial, sans-serif")
+      .style("pointer-events", "none") // Prevent text from interfering with mouse events
+      .attr("dy", 5) // Center vertically
+      .attr("dx", function (d) {
+        const circleRadius = 12; // Match the circle's radius
+        const textWidth = this.getBBox().width; // Get width of the current text element
+        return circleRadius + 5; // Offset text by radius + padding
+      })
+      .style("text-anchor", "start") // Align text to the left edge
+      .text((d) => d.data.name);
 
-// Add title for hover tooltip
-nodes.append("title").text((d) => d.data.name);
+    // Add title for hover tooltip
+    nodes.append("title").text((d) => d.data.name);
 
     // Add zoom and pan functionality
     const zoomBehavior = d3.zoom().on("zoom", (event) => {
@@ -203,7 +208,11 @@ nodes.append("title").text((d) => d.data.name);
     svg.attr("width", "100%").attr("height", height);
   }, [pathway]);
 
-  return <svg ref={svgRef}></svg>;
+  return (
+    <div style={{ width: "100%", height: "500px", overflow: "auto" }}>
+      <svg ref={svgRef}></svg>
+    </div>
+  );
 };
 
 export default PathwayGraph;
