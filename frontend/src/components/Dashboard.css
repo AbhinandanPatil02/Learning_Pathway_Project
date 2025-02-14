@@ -1,20 +1,78 @@
-/* Dashboard.css */
-.card {
-    border: none;
-    border-radius: 10px;
-  }
-  
-  .progress-bar {
-    background-color: #007bff; /* Bootstrap primary color */
-    border-radius: 5px;
-  }
-  
-  .card-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-  }
-  
-  .card-text {
-    font-size: 0.9rem;
-    color: #6c757d; /* Bootstrap secondary text color */
-  }
+/* Applying the Lemon font */
+@import url('https://fonts.googleapis.com/css2?family=Lemon&display=swap');
+
+/* Global styling */
+body {
+  font-family: 'lemon', cursive;
+}
+
+/* Title Styling */
+.title {
+    font-size: 50px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Card Styling */
+.learning-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 15px;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.learning-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Progress Circle Styling */
+.progress-circle {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+}
+
+.progress-bg {
+  fill: none;
+  stroke: #e6e6e6;
+  stroke-width: 8;
+}
+
+.progress-bar {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.progress-text {
+  font-size: 18px;
+  fill: #333;
+  font-weight: bold;
+  dominant-baseline: middle;
+}
+
+/* Dynamic Progress Ring Color */
+.card .progress-bar {
+  transition: stroke 0.3s ease;
+}
+
+/* Customizing Ring Color based on Progress */
+.card .progress-bar.red {
+  stroke: red;
+}
+
+.card .progress-bar.yellow {
+  stroke: yellow;
+}
+
+.card .progress-bar.lightgreen {
+  stroke: lightgreen;
+}
+
+.card .progress-bar.green {
+  stroke: green;
+}

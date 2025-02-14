@@ -40,7 +40,7 @@ const Login = () => {
       setFormData({ email: "", password: "" });
       console.log("Token is ", token)
       // Redirect to home or dashboard
-      navigate("/");
+      navigate("/dashboard");
       window.location.reload();
     } catch (err) {
       setLoading(false);

@@ -120,7 +120,7 @@ const Navbar = () => {
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav mr-auto">
           <li className="nav-item active m-3">
-            <a className="nav-link" href="#">Home</a>
+            <a className="nav-link" href="/">Home</a>
           </li>
           <li className="nav-item m-3">
             <a className="nav-link" href="#">Explore Tech</a>
