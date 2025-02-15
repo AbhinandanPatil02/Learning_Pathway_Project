@@ -18,10 +18,17 @@ const app = express();
 
 // 🔹 Middleware
 app.use(express.json());
-app.use(cors());
 app.use(bodyParser.json());
+// app.use(cors());
+// app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
 // 🔹 MongoDB Connection
+
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch(err => console.log("MongoDB connection error:", err));

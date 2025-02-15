@@ -40,6 +40,28 @@ router.get("/", authMiddleware, async (req, res) => {
     }
 });
 
+router.get("/:id", authMiddleware, async (req, res) => {
+    try {
+        // Fetch all pathways for the current user
+        const pathways = await Pathway.find({ userId: req.user.id });
+
+        if (!pathways || pathways.length === 0) {
+            return res.status(404).json({ message: "No pathways found for this user" });
+        }
+
+        res.json(pathways);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch pathways" });
+    }
+});
+
+
+
+
+
+
+
+
 // 🔹 Update Pathway
 router.put("/:pathwayId", authMiddleware, async (req, res) => {
     try {

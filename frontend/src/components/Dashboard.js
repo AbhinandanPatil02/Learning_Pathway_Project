@@ -109,7 +109,7 @@ const Dashboard = () => {
               {/* Start Button */}
               <button
                 className="start-button"
-                onClick={() => navigate(`/pathway/${course.id}`)} // Navigate to pathway using course ID
+                onClick={() => navigate(`/courses/${course._id}`)} // Navigate to pathway using course ID
               >
                 Start
               </button>

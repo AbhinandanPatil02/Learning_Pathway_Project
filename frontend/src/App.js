@@ -111,6 +111,7 @@ import Navbar from "./components/Navbar";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
+import CoursePathway from "./components/CoursePathway";
 
 const Home = ({ technology, setTechnology, handleGenerate, pathway, error }) => {
   return (
@@ -190,6 +191,7 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
+        <Route path="/courses/:id" element={<CoursePathway/>} ></Route>
       </Routes>
     </Router>
   );
