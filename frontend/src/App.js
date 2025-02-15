@@ -113,11 +113,69 @@ import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import CoursePathway from "./components/CoursePathway";
 
+
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const Home = ({ technology, setTechnology, handleGenerate, pathway, error }) => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!pathway || Object.keys(pathway).length === 0) return;
+
+    const token = localStorage.getItem("token"); // Get token from localStorage
+    if (!token) {
+      toast.error("Authorization token is missing. Please log in.");
+      return;
+    }
+
+    const payload = { technology, pathway };
+
+    try {
+      setIsSaving(true);
+      const response = await axios.post("http://localhost:5000/api/courses/save", payload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Pathway saved successfully!");
+      console.log("Saved Response:", response.data);
+    } catch (error) {
+      console.error("Error saving pathway:", error);
+      toast.error("Failed to save pathway. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ padding: "20px", position: "relative" }}>
+      {/* Save Button (Positioned on the Right Side) */}
+      <button
+        onClick={handleSave}
+        disabled={!pathway || Object.keys(pathway).length === 0 || isSaving}
+        style={{
+          position: "absolute",
+          right: "20px", // Position on the right
+          top: "20px",
+          padding: "10px 20px",
+          backgroundColor: pathway && Object.keys(pathway).length > 0 ? "#28a745" : "#ccc",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+          cursor: pathway && Object.keys(pathway).length > 0 ? "pointer" : "not-allowed",
+        }}
+      >
+        {isSaving ? "Saving..." : "Save"}
+      </button>
+
+      {/* Title */}
       <h1 style={{ textAlign: "center" }}>Learning Pathway Generator</h1>
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
+
+      {/* Input and Generate Button */}
+      <div style={{ textAlign: "center", marginBottom: "20px", display: "flex", justifyContent: "center" }}>
         <input
           type="text"
           placeholder="Enter a technology..."
@@ -146,11 +204,17 @@ const Home = ({ technology, setTechnology, handleGenerate, pathway, error }) => 
           Generate Pathway
         </button>
       </div>
+
+      {/* Error Message */}
       {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+
+      {/* Display Pathway */}
       {pathway && Object.keys(pathway).length > 0 && <PathwayGraph pathway={pathway} />}
     </div>
   );
 };
+
+
 
 const App = () => {
   const [technology, setTechnology] = useState("");
