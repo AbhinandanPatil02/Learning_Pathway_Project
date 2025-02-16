@@ -102,5 +102,30 @@ router.delete("/:pathwayId", authMiddleware, async (req, res) => {
     }
 });
 
-export default router;
 
+
+
+// 🔹 Update only the progress of a specific pathway
+router.put("/:pathwayId/progress", authMiddleware, async (req, res) => {
+    try {
+        const { pathwayId } = req.params;
+        const { progress } = req.body; // Expecting progress updates
+        
+        // Find and update only the progress field
+        const updatedPathway = await Pathway.findOneAndUpdate(
+            { _id: pathwayId, userId: req.user.id }, // Ensure the correct user
+            { $set: { progress } }, // Update only the progress field
+            { new: true } // Return the updated document
+        );
+        
+        if (!updatedPathway) {
+            return res.status(404).json({ message: "Pathway not found" });
+        }
+        
+        res.json({ message: "Progress updated", pathway: updatedPathway });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to update progress" });
+    }
+});
+
+export default router;

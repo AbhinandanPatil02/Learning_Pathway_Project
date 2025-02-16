@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "./CoursePathway.css"; // Custom CSS for styling
+import { CheckCircle, Circle } from "lucide-react"; // Icons
+import "./CoursePathway.css";
 
 const CoursePathway = () => {
-  const { id } = useParams(); // Get course ID from URL
+  const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
@@ -30,16 +30,13 @@ const CoursePathway = () => {
           withCredentials: true,
         });
 
-        console.log("API Response Data:", response.data);
-
         let fetchedCourse = response.data;
         if (Array.isArray(fetchedCourse) && fetchedCourse.length > 0) {
-          fetchedCourse = fetchedCourse[0]; // Handle array response
+          fetchedCourse = fetchedCourse[0]; 
         }
 
         setCourse(fetchedCourse);
-        setProgress(fetchedCourse.progress || {}); // Ensure progress is an object
-
+        setProgress(fetchedCourse.progress || {});
         setLoading(false);
       } catch (error) {
         console.error("Error fetching course:", error);
@@ -51,10 +48,14 @@ const CoursePathway = () => {
     fetchCourse();
   }, [id]);
 
+  // Calculate progress percentage
+  const totalLessons = course?.pathway?.reduce((sum, section) => sum + section.children.length, 0) || 0;
+  const completedLessons = Object.values(progress).filter((val) => val).length;
+  const progressPercentage = totalLessons ? Math.round((completedLessons / totalLessons) * 100) : 0;
+
   const handleCheckboxChange = async (pathwayName) => {
     setProgress((prev) => {
       const updatedProgress = { ...prev, [pathwayName]: !prev[pathwayName] };
-      console.log("Updated Progress:", updatedProgress); // ✅ Debugging line
       return updatedProgress;
     });
 
@@ -75,37 +76,44 @@ const CoursePathway = () => {
     }
   };
 
-  if (loading) {
-    return <div className="text-center mt-4">Loading...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center mt-4 text-danger">{error}</div>;
-  }
+  if (loading) return <div className="text-center mt-4">Loading...</div>;
+  if (error) return <div className="text-center mt-4 text-danger">{error}</div>;
 
   return (
     <div className="container mt-4">
-      <h2 className="text-left mb-4">{course?.technology} Learning Pathway</h2>
+      <h2 className="text-center mb-4">{course?.technology} Learning Pathway</h2>
+
+      {/* Progress Bar */}
+      <div className="progress-container text-center mb-4">
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${progressPercentage}%` }}></div>
+        </div>
+        <p>{progressPercentage}% Completed</p>
+      </div>
+
+      {/* Pathway List */}
       <div className="pathway-list">
         {course?.pathway && course.pathway.length > 0 ? (
           course.pathway.map((section, index) => (
             <div key={index} className="section">
-              <h4>{section.name}</h4>
-              {section.children?.map((child, idx) => (
-                <div key={idx} className="d-flex align-items-center mb-2">
-                  <input
-                    type="checkbox"
-                    checked={progress[child.name] || false}
-                    onChange={() => handleCheckboxChange(child.name)}
-                    className="me-2"
-                  />
-                  <span>{child.name}</span>
-                </div>
-              ))}
+              <h4 className="section-title">{section.name}</h4>
+              <div className="section-pathway">
+                {section.children?.map((child, idx) => (
+                  <div key={idx} className="lesson-card">
+                    <button
+                      className={`lesson-checkbox ${progress[child.name] ? "checked" : ""}`}
+                      onClick={() => handleCheckboxChange(child.name)}
+                    >
+                      {progress[child.name] ? <CheckCircle size={24} color="green" /> : <Circle size={24} />}
+                    </button>
+                    <span className="lesson-name">{child.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ))
         ) : (
-          <p>No pathways available.</p>
+          <p className="text-center">No pathways available.</p>
         )}
       </div>
     </div>
