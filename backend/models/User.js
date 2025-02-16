@@ -7,4 +7,5 @@ const userSchema = new mongoose.Schema({
     pathways: [{ type: mongoose.Schema.Types.ObjectId, ref: "Courses" }] // Reference to pathways
 });
 
+
 export default mongoose.model("User", userSchema);
