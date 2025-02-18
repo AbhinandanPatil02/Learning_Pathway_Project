@@ -42,18 +42,18 @@ router.get("/", authMiddleware, async (req, res) => {
 
 router.get("/:id", authMiddleware, async (req, res) => {
     try {
-        // Fetch all pathways for the current user
-        const pathways = await Pathway.find({ userId: req.user.id });
+        const pathway = await Pathway.findById(req.params.id);
 
-        if (!pathways || pathways.length === 0) {
-            return res.status(404).json({ message: "No pathways found for this user" });
+        if (!pathway) {
+            return res.status(404).json({ message: "Pathway not found" });
         }
 
-        res.json(pathways);
+        res.json(pathway);
     } catch (error) {
-        res.status(500).json({ error: "Failed to fetch pathways" });
+        res.status(500).json({ error: "Failed to fetch pathway" });
     }
 });
+
 
 
 
