@@ -117,6 +117,7 @@ import CoursePathway from "./components/CoursePathway";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ContactUS from "./components/ContactUS";
+import Quiz from "./components/Quiz";
 
 
 const Home = ({ technology, setTechnology, handleGenerate, pathway, error }) => {
@@ -259,6 +260,8 @@ const App = () => {
         <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/courses/:id" element={<CoursePathway/>} ></Route>
         <Route path="/contact"element={<ContactUS/>}></Route>
+        <Route path="/quiz" element={<Quiz/>}></Route>
+        
       </Routes>
     </Router>
   );

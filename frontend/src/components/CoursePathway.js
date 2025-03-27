@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { ProgressBar } from "react-bootstrap";
-import { motion } from "framer-motion";
 import "./CoursePathway.css";
 
 const CoursePathway = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [hoveredStep, setHoveredStep] = useState(null);
   const [progress, setProgress] = useState(0);
   const [completedSteps, setCompletedSteps] = useState(new Set());
 
@@ -47,34 +46,33 @@ const CoursePathway = () => {
           fetchedCourse = fetchedCourse[0];
         }
 
-        console.log("Fetched course data:", fetchedCourse);
-
         setCourse(fetchedCourse);
         setProgress(fetchedCourse.progress || 0);
 
-        // Calculate and prefill completed steps based on progress %
-        const totalSteps = fetchedCourse.pathway.reduce(
-          (acc, section) => acc + section.children.length,
-          0
-        );
-        const prefilledStepsCount = Math.round(
-          (fetchedCourse.progress / 100) * totalSteps
-        );
-
-        const newCompletedSteps = new Set();
-        let stepCounter = 0;
-        fetchedCourse.pathway.forEach((section, sectionIndex) => {
-          section.children.forEach((_, stepIndex) => {
-            if (stepCounter < prefilledStepsCount) {
-              newCompletedSteps.add(`${sectionIndex}-${stepIndex}`);
-            }
-            stepCounter++;
+        // Calculate completed steps based on progress percentage
+        if (fetchedCourse.pathway) {
+          const totalSteps = fetchedCourse.pathway.reduce(
+            (acc, section) => acc + section.children.length,
+            0
+          );
+          const completedCount = Math.round((fetchedCourse.progress / 100) * totalSteps);
+          
+          const newCompletedSteps = new Set();
+          let stepsProcessed = 0;
+          
+          // Mark steps as completed until we reach the completedCount
+          fetchedCourse.pathway.forEach((section, sectionIndex) => {
+            section.children.forEach((_, stepIndex) => {
+              if (stepsProcessed < completedCount) {
+                newCompletedSteps.add(`${sectionIndex}-${stepIndex}`);
+                stepsProcessed++;
+              }
+            });
           });
-        });
 
-        setCompletedSteps(newCompletedSteps);
+          setCompletedSteps(newCompletedSteps);
+        }
       } catch (error) {
-        console.error("Error fetching course:", error);
         setError(error.response?.data?.message || "Failed to fetch course.");
       } finally {
         setLoading(false);
@@ -84,36 +82,39 @@ const CoursePathway = () => {
     fetchCourse();
   }, [id]);
 
-  // Handle step click for user-controlled coloring
   const handleStepClick = async (sectionIndex, stepIndex) => {
     if (!course) return;
-  
-    const stepId = `${sectionIndex}-${stepIndex}`;
-    const newCompletedSteps = new Set(completedSteps);
-  
-    // Toggle step completion
-    if (newCompletedSteps.has(stepId)) {
-      newCompletedSteps.delete(stepId); // Unmark the step
-    } else {
-      newCompletedSteps.add(stepId); // Mark the step as completed
-    }
-  
-    setCompletedSteps(newCompletedSteps);
-  
-    // Update progress dynamically
-    const totalSteps = course.pathway.reduce(
-      (acc, section) => acc + section.children.length,
-      0
-    );
-    const newProgress = ((newCompletedSteps.size / totalSteps) * 100).toFixed(0);
-  
-    setProgress(newProgress);
-  
+
     try {
+      const stepId = `${sectionIndex}-${stepIndex}`;
+      const newCompletedSteps = new Set(completedSteps);
+
+      // Toggle completion status
+      if (newCompletedSteps.has(stepId)) {
+        newCompletedSteps.delete(stepId);
+      } else {
+        newCompletedSteps.add(stepId);
+      }
+
+      // Calculate new progress
+      const totalSteps = course.pathway.reduce(
+        (acc, section) => acc + section.children.length,
+        0
+      );
+      const newProgress = Math.round((newCompletedSteps.size / totalSteps) * 100);
+
+      // Update state
+      setCompletedSteps(newCompletedSteps);
+      setProgress(newProgress);
+
+      // Update backend
       const token = localStorage.getItem("token");
       await axios.put(
         `http://localhost:5000/api/courses/${id}/progress`,
-        { progress: newProgress },
+        {
+          progress: newProgress,
+          completedSteps: Array.from(newCompletedSteps),
+        },
         {
           headers: {
             "Content-Type": "application/json",
@@ -123,80 +124,77 @@ const CoursePathway = () => {
         }
       );
     } catch (error) {
-      console.error("Failed to update progress:", error);
-      setError("Failed to update progress.");
+      console.error("Progress update failed:", error);
+      setError("Failed to save progress. Please try again.");
     }
   };
-  
+
+  const handleQuizClick = (child, sectionIndex, stepIndex) => {
+    navigate("/quiz", {
+      state: {
+        topic: child.name,
+        quizData: child.quiz || [],
+        courseId: id,
+        sectionIndex,
+        stepIndex,
+      },
+    });
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="error">{error}</p>;
   if (!course) return <p>No course found.</p>;
 
+  let stepNumber = 1;
+
   return (
     <div className="course-container">
       <h2>{course.technology} Learning Pathway</h2>
-
-      {/* Progress Bar */}
-      <div className="progress-container">
-        <ProgressBar now={progress} label={`${progress}%`} />
-      </div>
-
-      {/* Pathway Sections */}
-      <div className="pathway">
-        {course.pathway.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="pathway-section">
-            <h3>{section.name}</h3>
-
-            <div className="steps-container">
-              {section.children.map((child, stepIndex) => {
-                const stepId = `${sectionIndex}-${stepIndex}`;
-                const isCompleted = completedSteps.has(stepId);
-
-                return (
-                  <motion.div
-                    key={stepId}
-                    className={`step ${isCompleted ? "completed" : "locked"} ${
-                      stepIndex % 2 === 0 ? "left" : "right"
-                    }`}
-                    onClick={() => handleStepClick(sectionIndex, stepIndex)}
-                    onMouseEnter={() => setHoveredStep(stepId)}
-                    onMouseLeave={() => setHoveredStep(null)}
-                    whileHover={{ scale: 1.1 }}
-                  >
-                    <span className="step-icon">⭐</span>
-
-                    {hoveredStep === stepId && (
-                      <motion.div
-                        className="tooltip"
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                      >
-                        <h4>{child.name}</h4>
-                        <p>
-                          <ReactMarkdown>
-                            {child.description || "No description available."}
-                          </ReactMarkdown>
-                        </p>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+      <ProgressBar now={progress} label={`${progress}%`} />
+      <table className="pathway-table">
+        <thead>
+          <tr>
+            <th>Sr.No.</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Quiz</th>
+          </tr>
+        </thead>
+        <tbody>
+          {course.pathway.map((section, sectionIndex) =>
+            section.children.map((child, stepIndex) => {
+              const stepId = `${sectionIndex}-${stepIndex}`;
+              const isCompleted = completedSteps.has(stepId);
+              
+              return (
+                <tr key={stepId}>
+                  <td>{stepNumber++}</td>
+                  <td>{child.name}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      id={`step-${stepId}`}
+                      checked={isCompleted}
+                      onChange={() => handleStepClick(sectionIndex, stepIndex)}
+                    />
+                    <label htmlFor={`step-${stepId}`}></label>
+                  </td>
+                  <td>
+                    <button onClick={() => handleQuizClick(child, sectionIndex, stepIndex)}>
+                      Quiz
+                    </button>
+                  </td>
+                </tr>
+              );
+            })
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default CoursePathway;
-
-
-
-
 
 
 
@@ -219,21 +217,20 @@ export default CoursePathway;
 //   const [course, setCourse] = useState(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState("");
-//   const [completedSteps, setCompletedSteps] = useState([]);
 //   const [hoveredStep, setHoveredStep] = useState(null);
 //   const [progress, setProgress] = useState(0);
+//   const [completedSteps, setCompletedSteps] = useState(new Set());
 
 //   useEffect(() => {
 //     const fetchCourse = async () => {
 //       setLoading(true);
 //       setError("");
 //       setCourse(null);
-//       setCompletedSteps([]);
 //       setProgress(0);
+//       setCompletedSteps(new Set());
 
 //       try {
 //         const token = localStorage.getItem("token");
-
 //         if (!token) {
 //           setError("You are not authenticated. Please log in.");
 //           setLoading(false);
@@ -259,8 +256,29 @@ export default CoursePathway;
 //         console.log("Fetched course data:", fetchedCourse);
 
 //         setCourse(fetchedCourse);
-//         setCompletedSteps(fetchedCourse.completedSteps || []);
 //         setProgress(fetchedCourse.progress || 0);
+
+//         // Calculate and prefill completed steps based on progress %
+//         const totalSteps = fetchedCourse.pathway.reduce(
+//           (acc, section) => acc + section.children.length,
+//           0
+//         );
+//         const prefilledStepsCount = Math.round(
+//           (fetchedCourse.progress / 100) * totalSteps
+//         );
+
+//         const newCompletedSteps = new Set();
+//         let stepCounter = 0;
+//         fetchedCourse.pathway.forEach((section, sectionIndex) => {
+//           section.children.forEach((_, stepIndex) => {
+//             if (stepCounter < prefilledStepsCount) {
+//               newCompletedSteps.add(`${sectionIndex}-${stepIndex}`);
+//             }
+//             stepCounter++;
+//           });
+//         });
+
+//         setCompletedSteps(newCompletedSteps);
 //       } catch (error) {
 //         console.error("Error fetching course:", error);
 //         setError(error.response?.data?.message || "Failed to fetch course.");
@@ -272,34 +290,36 @@ export default CoursePathway;
 //     fetchCourse();
 //   }, [id]);
 
+//   // Handle step click for user-controlled coloring
 //   const handleStepClick = async (sectionIndex, stepIndex) => {
 //     if (!course) return;
-
+  
 //     const stepId = `${sectionIndex}-${stepIndex}`;
-
+//     const newCompletedSteps = new Set(completedSteps);
+  
 //     // Toggle step completion
-//     const newCompletedSteps = completedSteps.includes(stepId)
-//       ? completedSteps.filter((s) => s !== stepId)
-//       : [...completedSteps, stepId];
-
+//     if (newCompletedSteps.has(stepId)) {
+//       newCompletedSteps.delete(stepId); // Unmark the step
+//     } else {
+//       newCompletedSteps.add(stepId); // Mark the step as completed
+//     }
+  
 //     setCompletedSteps(newCompletedSteps);
-
-//     // Calculate new progress
+  
+//     // Update progress dynamically
 //     const totalSteps = course.pathway.reduce(
 //       (acc, section) => acc + section.children.length,
 //       0
 //     );
-//     const newProgress = ((newCompletedSteps.length / totalSteps) * 100).toFixed(
-//       0
-//     );
-
+//     const newProgress = ((newCompletedSteps.size / totalSteps) * 100).toFixed(0);
+  
 //     setProgress(newProgress);
-
+  
 //     try {
 //       const token = localStorage.getItem("token");
 //       await axios.put(
 //         `http://localhost:5000/api/courses/${id}/progress`,
-//         { progress: newProgress, completedSteps: newCompletedSteps },
+//         { progress: newProgress },
 //         {
 //           headers: {
 //             "Content-Type": "application/json",
@@ -313,6 +333,7 @@ export default CoursePathway;
 //       setError("Failed to update progress.");
 //     }
 //   };
+  
 
 //   if (loading) return <p>Loading...</p>;
 //   if (error) return <p className="error">{error}</p>;
@@ -321,10 +342,13 @@ export default CoursePathway;
 //   return (
 //     <div className="course-container">
 //       <h2>{course.technology} Learning Pathway</h2>
+
+//       {/* Progress Bar */}
 //       <div className="progress-container">
 //         <ProgressBar now={progress} label={`${progress}%`} />
 //       </div>
 
+//       {/* Pathway Sections */}
 //       <div className="pathway">
 //         {course.pathway.map((section, sectionIndex) => (
 //           <div key={sectionIndex} className="pathway-section">
@@ -333,7 +357,7 @@ export default CoursePathway;
 //             <div className="steps-container">
 //               {section.children.map((child, stepIndex) => {
 //                 const stepId = `${sectionIndex}-${stepIndex}`;
-//                 const isCompleted = completedSteps.includes(stepId);
+//                 const isCompleted = completedSteps.has(stepId);
 
 //                 return (
 //                   <motion.div
@@ -376,3 +400,113 @@ export default CoursePathway;
 
 // export default CoursePathway;
 
+
+
+
+
+// .course-container {
+//   max-width: 800px;
+//   margin: auto;
+//   padding: 20px;
+// }
+
+// .progress-container {
+//   margin-bottom: 20px;
+// }
+
+// .progress-bar {
+//   height: 40px; /* Increased height */
+//   font-size: 18px; /* Bigger font for visibility */
+//   text-align: center;
+// }
+
+// .pathway-section {
+//   margin-top: 20px;
+//   padding: 15px;
+// }
+
+// .steps-container {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 45px; /* Reduced gap for closer steps */
+//   position: relative;
+//   align-items: center; /* Align steps to center */
+// }
+
+// .step {
+//   width: 60px;
+//   height: 60px;
+//   border-radius: 50%;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   /* gap:40px; */
+//   font-size: 20px;
+//   cursor: pointer;
+//   position: relative;
+//   transition: background 0.3s ease, transform 0.2s ease;
+//   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1);
+// }
+
+// /* Different alignment for left and right steps */
+// .step.left {
+//   align-self: flex-start;
+// }
+
+// .step.right {
+//   align-self: flex-end;
+// }
+
+// /* Reduce horizontal distance */
+// .step.left,
+// .step.right {
+//   margin: 0 180px; /* Brings left and right steps closer */
+// }
+
+
+// /* Left steps connect to the right */
+// .step.left::after {
+//   left: 100%;
+//   top: 50%;
+//   transform: translateY(-50%) rotate(15deg);
+// }
+
+// /* Right steps connect to the left */
+// .step.right::after {
+//   right: 100%;
+//   top: 50%;
+//   transform: translateY(-50%) rotate(-15deg);
+// }
+
+// /* Remove road after the last step */
+// .step:last-child::after {
+//   display: none;
+// }
+
+// .step.locked {
+//   background: #ccc;
+//   color: #888;
+// }
+
+// .step.completed {
+//   background: #4caf50;
+//   color: white;
+// }
+
+// .step:hover {
+//   transform: scale(1.1);
+// }
+
+// .tooltip {
+//   position: absolute;
+//   bottom: 70px;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   background: white;
+//   padding: 8px;
+//   border-radius: 5px;
+//   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+//   text-align: left;
+//   width: 200px;
+//   z-index: 10;
+// }
