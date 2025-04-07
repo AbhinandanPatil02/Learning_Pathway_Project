@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { Button, Card, Alert } from "react-bootstrap";
 import "./Notes.css";
 
-const GOOGLE_GEMINI_API_KEY = "AIzaSyA2DRxDbZB00mQAgl0IA8TxtuSyGLQB-YA";
+const GOOGLE_GEMINI_API_KEY = "Add your API key";
 const GOOGLE_GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 const Notes = () => {
