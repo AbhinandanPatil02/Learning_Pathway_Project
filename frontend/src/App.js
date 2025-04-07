@@ -112,7 +112,7 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import Dashboard from "./components/Dashboard";
 import CoursePathway from "./components/CoursePathway";
-
+import Notes from './components/Notes';
 
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -261,6 +261,7 @@ const App = () => {
         <Route path="/courses/:id" element={<CoursePathway/>} ></Route>
         <Route path="/contact"element={<ContactUS/>}></Route>
         <Route path="/quiz" element={<Quiz/>}></Route>
+        <Route path="/notes" element={<Notes/>}></Route>
         
       </Routes>
     </Router>
