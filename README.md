@@ -92,12 +92,4 @@ cd frontend && npm start
 - **Gamification**: Badges and rewards for learning milestones
 
 
-
-## ✉️ Contact
-
-**Abhinandan Patil**  
-📧 abhinandanpatil002@gmail.com  
-🔗 [LinkedIn Profile](https://www.linkedin.com/in/abhinandan-patil-48970b258)  
-
-
 ---
