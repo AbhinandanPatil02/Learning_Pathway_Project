@@ -8,7 +8,7 @@ import axios from "axios";
 import { Container, Button, Card, Alert, Form, ProgressBar } from "react-bootstrap";
 import "./Quiz.css";
 
-const GOOGLE_GEMINI_API_KEY = "AIzaSyA2DRxDbZB00mQAgl0IA8TxtuSyGLQB-YA";
+const GOOGLE_GEMINI_API_KEY = "Add your API key";
 const GOOGLE_GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 const Quiz = () => {
