@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Button, Card, Alert } from "react-bootstrap";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 import "./Notes.css";
 
-const GOOGLE_GEMINI_API_KEY = "AIzaSyA2DRxDbZB00mQAgl0IA8TxtuSyGLQB-YA";
-const GOOGLE_GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GOOGLE_GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+const GOOGLE_GEMINI_API_URL = process.env.REACT_APP_GEMINI_API_URL;
 
 const Notes = () => {
   const [notes, setNotes] = useState("");
@@ -14,6 +16,7 @@ const Notes = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { topic, returnPath } = location.state || {};
+  const notesRef = useRef(null);
 
   useEffect(() => {
     if (!topic) {
@@ -26,7 +29,7 @@ const Notes = () => {
       try {
         setLoading(true);
         setError("");
-        
+
         const response = await fetch(
           `${GOOGLE_GEMINI_API_URL}?key=${GOOGLE_GEMINI_API_KEY}`,
           {
@@ -63,8 +66,7 @@ const Notes = () => {
 
         const data = await response.json();
         const generatedNotes = data.candidates?.[0]?.content?.parts?.[0]?.text || "No notes were generated.";
-        
-        // Clean up the response if it's wrapped in markdown code blocks
+
         const cleanedNotes = generatedNotes.replace(/```markdown/g, '').replace(/```/g, '').trim();
         setNotes(cleanedNotes);
       } catch (error) {
@@ -81,6 +83,44 @@ const Notes = () => {
   const handleBack = () => {
     navigate(returnPath || "/");
   };
+
+
+  const downloadAsPDF = async () => {
+  const input = notesRef.current;
+  const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 10;
+
+  const canvas = await html2canvas(input, { scale: 2 });
+  const imgData = canvas.toDataURL("image/png");
+
+  const imgProps = pdf.getImageProperties(imgData);
+  const imgWidth = pageWidth - margin * 2;
+  const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+  const totalPDFPages = Math.ceil(imgHeight / (pageHeight - margin * 2));
+
+  let yOffset = 0;
+
+  for (let i = 0; i < totalPDFPages; i++) {
+    const position = -i * (pageHeight - margin * 2);
+    pdf.addImage(
+      imgData,
+      "PNG",
+      margin,
+      position + margin,
+      imgWidth,
+      imgHeight
+    );
+    if (i < totalPDFPages - 1) {
+      pdf.addPage();
+    }
+  }
+
+  pdf.save(`${topic}_notes.pdf`);
+};
+
 
   if (loading) {
     return (
@@ -100,15 +140,15 @@ const Notes = () => {
         <Card className="notes-error-card">
           <h3>Error Generating Notes</h3>
           <Alert variant="danger">{error}</Alert>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={() => window.location.reload()}
             className="notes-retry-button"
           >
             Try Again
           </Button>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={handleBack}
             className="notes-back-button"
           >
@@ -124,22 +164,38 @@ const Notes = () => {
       <Card className="notes-content-card">
         <div className="notes-header">
           <h2>Notes: {topic}</h2>
-          <Button 
-            variant="outline-secondary" 
-            onClick={handleBack}
-            className="notes-back-button"
-          >
-            Back to Course
-          </Button>
+          <div>
+            <Button
+              variant="success"
+              onClick={downloadAsPDF}
+              className="notes-download-button"
+            >
+              Download PDF
+            </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={handleBack}
+              className="notes-back-button"
+            >
+              Back to Course
+            </Button>
+          </div>
         </div>
-        
-        <Card.Body className="notes-markdown-content">
+
+        <Card.Body className="notes-markdown-content" ref={notesRef}>
           <ReactMarkdown>{notes}</ReactMarkdown>
         </Card.Body>
-        
+
         <div className="notes-footer">
-          <Button 
-            variant="primary" 
+          <Button
+            variant="success"
+            onClick={downloadAsPDF}
+            className="notes-download-button"
+          >
+            Download PDF
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleBack}
             className="notes-back-button"
           >
@@ -152,3 +208,13 @@ const Notes = () => {
 };
 
 export default Notes;
+
+
+
+
+
+
+
+
+
+

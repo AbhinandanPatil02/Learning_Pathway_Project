@@ -24,6 +24,7 @@ router.post("/save", authMiddleware, async (req, res) => {
     }
 });
 
+
 // 🔹 Get Pathways for a User
 router.get("/", authMiddleware, async (req, res) => {
     try {

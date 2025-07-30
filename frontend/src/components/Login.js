@@ -5,6 +5,9 @@ import Lottie from "lottie-react";
 import loginAnimation from "../assets/login-animation.json";
 import "./Login.css";
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -26,8 +29,10 @@ const Login = () => {
     setError("");
     setSuccess("");
 
+    // `${API_BASE_URL}/api/signup`, 
+
     try {
-      const response = await axios.post("http://localhost:5000/api/login", formData);
+      const response = await axios.post(`${API_BASE_URL}/login`, formData);
       const token = response.data.token;
 
       localStorage.setItem("token", token);

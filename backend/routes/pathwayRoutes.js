@@ -4,8 +4,7 @@ require("dotenv").config();
 
 const router = express.Router();
 
-const GOOGLE_GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GOOGLE_GEMINI_API_URL =process.env.GOOGLE_GEMINI_API_URL;
 const API_KEY = process.env.GOOGLE_GEMINI_API_KEY;
 
 router.post("/generate", async (req, res) => {

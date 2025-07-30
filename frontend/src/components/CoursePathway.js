@@ -6,6 +6,11 @@ import ReactMarkdown from "react-markdown";
 import { ProgressBar } from "react-bootstrap";
 import "./CoursePathway.css";
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+
+
 const CoursePathway = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -31,8 +36,10 @@ const CoursePathway = () => {
           return;
         }
 
+        //`${API_BASE_URL}/signup`, 
+
         const response = await axios.get(
-          `http://localhost:5000/api/courses/${id}`,
+          `${API_BASE_URL}/courses/${id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -105,7 +112,7 @@ const CoursePathway = () => {
 
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/courses/${id}/progress`,
+        `${API_BASE_URL}/courses/${id}/progress`,
         {
           progress: newProgress,
           completedSteps: Array.from(newCompletedSteps),

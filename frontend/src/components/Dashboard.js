@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const Dashboard = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -28,7 +30,7 @@ const Dashboard = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/courses/", {
+        const response = await axios.get(`${API_BASE_URL}/courses/`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -63,7 +65,7 @@ const Dashboard = () => {
       window.confirm("⚠️ Are you sure you want to delete this course? This action cannot be undone!")
     ) {
       try {
-        await axios.delete(`http://localhost:5000/api/courses/${courseId}`, {
+        await axios.delete(`${API_BASE_URL}/courses/${courseId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -1,15 +1,16 @@
 
 
-
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Container, Button, Card, Alert, Form, ProgressBar } from "react-bootstrap";
 import "./Quiz.css";
 
-const GOOGLE_GEMINI_API_KEY = "AIzaSyA2DRxDbZB00mQAgl0IA8TxtuSyGLQB-YA";
-const GOOGLE_GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GOOGLE_GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+const GOOGLE_GEMINI_API_URL = process.env.REACT_APP_GEMINI_API_URL;
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 
 const Quiz = () => {
   const location = useLocation();
@@ -118,12 +119,13 @@ const Quiz = () => {
       setSelectedAnswer(null);
     } else {
       setQuizCompleted(true);
+      // `${API_BASE_URL}/api/signup`, 
       
       if (courseId && sectionIndex !== undefined && stepIndex !== undefined) {
         try {
           const token = localStorage.getItem("token");
           await axios.post(
-            `http://localhost:5000/api/courses/${courseId}/complete-step`,
+            `${API_BASE_URL}/courses/${courseId}/complete-step`,
             { sectionIndex, stepIndex, quizScore: score },
             {
               headers: {

@@ -85,3 +85,19 @@
     color: #7f8c8d;
     margin: 2rem 0;
 }
+
+
+.notes-download-button {
+  margin-right: 10px;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.notes-markdown-content {
+  padding: 20px;
+}

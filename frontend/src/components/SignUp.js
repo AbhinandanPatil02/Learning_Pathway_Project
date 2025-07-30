@@ -5,6 +5,11 @@ import Lottie from "lottie-react";
 import signupAnimation from "../assets/signup-animation.json";
 import "./SignUp.css";
 
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+//`${API_BASE_URL}/pathways`
+
 const SignUp = () => {
   const [formData, setFormData] = useState({ 
     name: "", 
@@ -28,7 +33,9 @@ const SignUp = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/signup", 
+        // "http://localhost:5000/api/signup", 
+        `${API_BASE_URL}/signup`, 
+
         formData
       );
       
