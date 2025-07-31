@@ -140,7 +140,8 @@ app.use(bodyParser.json());
 app.use(cors({
     origin: [
         'http://localhost:3000',
-        'https://learning-pathway-project-1.onrender.com'
+        'https://learning-pathway-project-1.onrender.com',
+        'https://learning-pathway-project.vercel.app' 
     ],
     credentials: true
 }));
