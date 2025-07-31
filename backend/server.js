@@ -8,20 +8,17 @@ import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Import Routes & Models
 import pathwayRoutes from "./routes/pathwayRoutes.js";
 import courseRoutes from "./routes/courseRoutes.js";
 import User from "./models/User.js";
-import authMiddleware from "./middleware/auth.js"; // Middleware for protected routes
+import authMiddleware from "./middleware/auth.js";
 
 dotenv.config();
 const app = express();
 
-// ✅ Enable __dirname in ES Module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ✅ Middleware
 app.use(express.json());
 app.use(bodyParser.json());
 
@@ -35,14 +32,13 @@ app.use(
   })
 );
 
-// ✅ MongoDB Connection
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected"))
   .catch((err) => console.log("MongoDB connection error:", err));
 
-// ✅ Authentication Routes
-
+// Auth Routes
 app.post("/api/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -95,26 +91,22 @@ app.get("/api/user", authMiddleware, async (req, res) => {
   }
 });
 
-// ✅ Route Handling
+// Routes
 app.use("/api/pathways", pathwayRoutes);
 app.use("/api/courses", courseRoutes);
 
-// ✅ Serve frontend in production
-if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "frontend", "build");
-  app.use(express.static(frontendPath));
+// ✅ Serve static frontend files
+const frontendPath = path.join(__dirname, "frontend", "build");
+app.use(express.static(frontendPath));
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
-  });
-}
+// ✅ Fallback for SPA routes (must be AFTER your API routes!)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
 
-// ✅ Start server
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-
 
 
 
