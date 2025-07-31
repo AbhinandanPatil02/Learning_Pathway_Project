@@ -22,10 +22,21 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 
 const Home = ({ technology, setTechnology, handleGenerate, pathway, error }) => {
+  // const [isSaving, setIsSaving] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      toast.error("Authorization token is missing. Please log in.");
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleSave = async () => {
     if (!pathway || Object.keys(pathway).length === 0) return;
+    // const navigate = useNavigate();
 
     const token = localStorage.getItem("token"); // Get token from localStorage
     if (!token) {
