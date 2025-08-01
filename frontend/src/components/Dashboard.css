@@ -1,15 +1,16 @@
-/* Applying the Lemon font */
-@import url('https://fonts.googleapis.com/css2?family=Lemon&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 /* Global styling */
 body {
-  font-family: 'lemon', cursive;
+  font-family: 'Roboto', sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 /* Title Styling */
 .title {
-    font-size: 50px;
-  font-weight: bold;
+  font-size: 50px;
+  font-weight: 700;
   color: #333;
 }
 
@@ -20,6 +21,7 @@ body {
   padding: 20px;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;  /* Ensure font on cards too */
 }
 
 .learning-card:hover {
