@@ -15,15 +15,21 @@
   gap: 3rem;
   padding: 4rem 0;
   flex-wrap: wrap;
-  background: linear-gradient(135deg, #6e8efb, #a777e3);
   border-radius: 12px;
   color: white;
+  /* Remove background from .about-hero */
+  background: none;
   box-shadow: 0 10px 35px rgba(110, 142, 251, 0.25);
 }
 
 .hero-content {
   flex: 1 1 400px;
   max-width: 600px;
+  /* Move gradient background here */
+  background: linear-gradient(135deg, #6e8efb, #a777e3);
+  border-radius: 12px;
+  color: white;
+  padding: 2rem;
 }
 
 .hero-title {
@@ -44,6 +50,8 @@
   flex: 1 1 300px;
   max-width: 500px;
   filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.15));
+  background: none !important; /* Remove any accidental backgrounds */
+  padding: 0 !important;        /* Remove padding on mobile (see below for overrides) */
 }
 
 /* Mission Section */
@@ -235,12 +243,13 @@
   .about-hero {
     flex-direction: column;
     text-align: center;
-    padding: 2.5rem 0;
+    padding: 2rem 0 0 0; /* Remove bottom padding for animation */
+    background: none;
   }
 
   .hero-content {
-    padding-right: 0;
-    margin-bottom: 2rem;
+    padding: 1.2rem;
+    margin: 0 auto 2rem auto;
   }
 
   .hero-title {
@@ -249,6 +258,11 @@
 
   .hero-subtitle {
     max-width: 100%;
+  }
+
+  .hero-animation {
+    background: none !important;
+    padding: 0 !important;
   }
 
   .mission-section {
@@ -302,4 +316,3 @@
     font-size: 1.5rem;
   }
 }
-
