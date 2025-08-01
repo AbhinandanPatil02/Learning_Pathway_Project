@@ -1,15 +1,14 @@
-
-
 import React, { useState } from "react";
-import { User } from "lucide-react"; // User icon
+import { User } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./Navbar.css"; // Ensure this CSS file contains styles for dropdown
-import logo from '../assets/logo.png';
+import "./Navbar.css";
+import logo from "../assets/logo.png";
 
 const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isNavCollapsed, setIsNavCollapsed] = useState(true); // navbar toggle
   const navigate = useNavigate();
-  const location = useLocation(); // Get current route
+  const location = useLocation();
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -22,35 +21,30 @@ const Navbar = () => {
     window.location.reload();
   };
 
+  const handleNavCollapse = () => {
+    setIsNavCollapsed(!isNavCollapsed);
+  };
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      {/* Web Logo */}
       <a className="navbar-brand m-3" href="#">
-  <img
-    src={logo} // Use the imported logo
-    alt="Company Logo"
-    width="50"
-    height="50"
-    className="d-inline-block align-top"
-  />
- {/* Optional text next to logo */}
-</a>
+        <img src={logo} alt="Logo" width="50" height="50" className="d-inline-block align-top" />
+      </a>
 
-      {/* Navbar Toggler for Mobile */}
+      {/* React-controlled toggler */}
       <button
         className="navbar-toggler m-3"
         type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
+        onClick={handleNavCollapse}
+        aria-controls="navbarNav"
+        aria-expanded={!isNavCollapsed}
         aria-label="Toggle navigation"
       >
         <span className="navbar-toggler-icon"></span>
       </button>
 
-      {/* Navbar Links */}
-      <div className="collapse navbar-collapse" id="navbarSupportedContent">
+      {/* Controlled collapse */}
+      <div className={`${isNavCollapsed ? "collapse" : ""} navbar-collapse`} id="navbarNav">
         <ul className="navbar-nav mr-auto">
           <li className={`nav-item m-3 ${location.pathname === "/dashboard" ? "active" : ""}`}>
             <a className="nav-link" href="/dashboard">Dashboard</a>
@@ -67,26 +61,20 @@ const Navbar = () => {
         </ul>
 
         {/* User Dropdown */}
-        <div className="ml-auto user-dropdown" style={{ position: "relative" }}>
-          <button className="nav-link user-icon-btn" onClick={toggleDropdown}>
+        <div className="ml-auto user-dropdown position-relative">
+          <button className="nav-link user-icon-btn btn btn-link" onClick={toggleDropdown}>
             <User size={30} />
           </button>
 
           {dropdownOpen && (
-            <div className="dropdown-menu show" style={{ position: "absolute", right: 0, top: "100%" }}>
-              <a
-                className="dropdown-item"
-                href="#"
-                onClick={() => {
-                  setDropdownOpen(false);
-                  navigate("/profile");
-                }}
-              >
+            <div className="dropdown-menu show" style={{ position: "absolute", right: 0 }}>
+              <button className="dropdown-item" onClick={() => {
+                setDropdownOpen(false);
+                navigate("/profile");
+              }}>
                 Profile
-              </a>
-              <a className="dropdown-item" href="#" onClick={handleLogout}>
-                Logout
-              </a>
+              </button>
+              <button className="dropdown-item" onClick={handleLogout}>Logout</button>
             </div>
           )}
         </div>
@@ -97,98 +85,3 @@ const Navbar = () => {
 
 export default Navbar;
 
-
-
-// import React, { useState } from "react";
-// import { User } from "lucide-react"; // User icon
-// import { useNavigate } from "react-router-dom";
-// import "./Navbar.css"; // Ensure this CSS file contains styles for dropdown
-
-// const Navbar = () => {
-//   const [dropdownOpen, setDropdownOpen] = useState(false);
-//   const navigate = useNavigate();
-
-//   const toggleDropdown = () => {
-//     setDropdownOpen(!dropdownOpen);
-//   };
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("token");
-//     setDropdownOpen(false);
-//     navigate("/login");
-//     window.location.reload();
-//   };
-
-//   return (
-//     <nav className="navbar navbar-expand-lg navbar-light bg-light">
-//       {/* Web Logo */}
-//       <a className="navbar-brand m-3" href="#">
-//         <img
-//           src="path-to-your-logo.png" // Replace with your actual logo path
-//           alt="Web Logo"
-//           width="30"
-//           height="30"
-//           className="d-inline-block align-top"
-//         />
-//       </a>
-
-//       {/* Navbar Toggler for Mobile */}
-//       <button
-//         className="navbar-toggler m-3"
-//         type="button"
-//         data-toggle="collapse"
-//         data-target="#navbarSupportedContent"
-//         aria-controls="navbarSupportedContent"
-//         aria-expanded="false"
-//         aria-label="Toggle navigation"
-//       >
-//         <span className="navbar-toggler-icon"></span>
-//       </button>
-
-//       {/* Navbar Links */}
-//       <div className="collapse navbar-collapse" id="navbarSupportedContent">
-//         <ul className="navbar-nav mr-auto">
-//           <li className="nav-item active m-3">
-//             <a className="nav-link" href="/dashboard">Dashboard</a>
-//           </li>
-//           <li className="nav-item m-3">
-//             <a className="nav-link" href="/">Explore Tech</a>
-//           </li>
-//           <li className="nav-item m-3">
-//             <a className="nav-link" href="#">About Us</a>
-//           </li>
-//           <li className="nav-item m-3">
-//             <a className="nav-link" href="#">Contact</a>
-//           </li>
-//         </ul>
-
-//         {/* User Dropdown */}
-//         <div className="ml-auto user-dropdown">
-//           <button className="nav-link user-icon-btn" onClick={toggleDropdown}>
-//             <User size={30} />
-//           </button>
-
-//           {dropdownOpen && (
-//             <div className="dropdown-menu show">
-//               <a
-//                 className="dropdown-item"
-//                 href="#"
-//                 onClick={() => {
-//                   setDropdownOpen(false);
-//                   navigate("/profile");
-//                 }}
-//               >
-//                 Profile
-//               </a>
-//               <a className="dropdown-item" href="#" onClick={handleLogout}>
-//                 Logout
-//               </a>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </nav>
-//   );
-// };
-
-// export default Navbar;
