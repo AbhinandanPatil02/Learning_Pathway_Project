@@ -35,3 +35,52 @@
 .contact-us .btn-success:hover {
   background: #ff6347;
 }
+
+
+
+.contact-container {
+  background: #f9f9f9;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.contact-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  transition: box-shadow 0.3s;
+}
+
+.contact-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.contact-img {
+  max-width: 250px;
+  height: auto;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-dark {
+  background-color: #212529;
+  border: none;
+}
+
+.btn-dark:hover {
+  background-color: #000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .contact-img {
+    max-width: 180px;
+  }
+}
